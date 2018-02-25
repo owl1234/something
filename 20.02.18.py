@@ -197,8 +197,8 @@ def endScreen():
             text += " секунды"
         else:
             text += " секунд"
+            
     text += "!"
-    print(text)
     font = pygame.font.Font(None, 50)  
     text = font.render(text, 1, (100, 255, 100))
   
@@ -276,7 +276,6 @@ def load_level(filename):
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(maxWidth, '.'), level_map))
 
-# level = load_level("file.txt")
 
 
 class Indicator(pygame.sprite.Sprite):
@@ -288,13 +287,10 @@ class Indicator(pygame.sprite.Sprite):
         self.rect.y = 490
 
     def update(self):
-        print('Indicator:', self.rect.x, self.rect.y)
         min_len_to_fish = 10000000000
         for fish in volozh_group:
             if ((player.rect.x - fish.rect.x) ** 2 + (player.rect.y - fish.rect.y) ** 2) ** 0.5 < min_len_to_fish:
                 min_len_to_fish = ((player.rect.x - fish.rect.x) ** 2 + (player.rect.y - fish.rect.y) ** 2) ** 0.5
-        print(player.rect.x, fish.rect.x, player.rect.y, fish.rect.y)
-        print(min_len_to_fish)
 
         if min_len_to_fish < 200:
             self.image = load_image('16.png')
@@ -343,7 +339,6 @@ class Volozh(pygame.sprite.Sprite):
         self.image = volozh_image
         self.rect = self.image.get_rect().move(volozh_width * posx, volozh_height * posy)
         self.mask = pygame.mask.from_surface(self.image)
-        print(posx, posy)
 
 
 class Player(pygame.sprite.Sprite):
@@ -357,24 +352,10 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, volozh_group):
             for i in pygame.sprite.spritecollide(self, volozh_group, 0):
                 screen.fill(pygame.Color(0, 0, 0))
-                print("You are winner!")
                 pygame.display.flip()
                 endScreen()
 
-                # print(self.count)
-
-        if self.count > 100:
-            screen.fill(pygame.Color(0, 0, 0))
-            print("You are winner!")
-            pygame.display.flip()
-            endScreen()
-        else:
-            # print("noooooooooooooooooooooooo")
-            pass
-
-
 def generate_level(level):
-    # global player
     for y in range(len(level)):
         for x in range(len(level[y])):
             Tile('water', x, y)
@@ -448,7 +429,6 @@ while running:
     indicator.update()
 
     camera.update(player)
-    # print(player.rect.centerx, player.rect.centery)
     # обновляем положение всех спрайтов
     for sprite in all_sprites:
         camera.apply(sprite)
@@ -466,13 +446,12 @@ while running:
     backgr1 = pygame.transform.scale(backgr, (800, 600))
     screen.blit(backgr1, [0, 0])
 
-    # tiles_group.draw(screen)
     koryaga_group.draw(screen)
     grass_group.draw(screen)
     volozh_group.draw(screen)
     player_group.draw(screen)
     indicator_sprites.draw(screen)
-    # indicator.draw()
+
 
     if time.time() - t >= 5:
         speed = 2
