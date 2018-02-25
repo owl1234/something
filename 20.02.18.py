@@ -7,6 +7,7 @@ import math
 
 
 pygame.init()
+pygame.mouse.set_visible(0)
 size = width, height = 800, 600
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -37,7 +38,7 @@ def terminate():
 
 # основной персонаж
 player = None
-speed = 3
+speed = 4
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 particles_sprites = pygame.sprite.Group()
@@ -74,7 +75,7 @@ class koryaga(pygame.sprite.Sprite):
         global speed
         global t
         if pygame.sprite.collide_mask(self, player):
-            speed = 1
+            speed = 2
 
             t = time.time()
 
@@ -96,10 +97,8 @@ class grass(pygame.sprite.Sprite):
             t = time.time()
             
 def startScreen():
-    
-    # здесь можно вывести красивую картинку
-    # ...
-
+    music = pygame.mixer.music.load("data/sea.mp3")
+    pygame.mixer.music.play(-1)
     introText = ["¬ этой игре вы можете почувствовать себ€ насто€щим котом.",
                  "÷ель игры - найти рыбу на поле."]
 
@@ -171,36 +170,39 @@ startScreen()
 all_time = time.time()
 screen_rect = (0, 0, width, height)
 def endScreen():
+    music = pygame.mixer.music.load("data/victory.mp3")
+    pygame.mixer.music.play(-1)    
     user_time = int(time.time() - all_time)
     ut_min = user_time // 60
     ut_sec = user_time - ut_min * 60
-    text = "¬ы поймали рыбу за "
+    text = "¬ы поймали рыбу за"
     if ut_min > 0:
         text += str(ut_min) 
         if ut_min > 10 and ut_min < 20:
-            text += " минут "
+            text += " минут"
         elif ut_min % 10 == 1:
-            text += " минуту "
+            text += " минуту"
         elif ut_min % 10 == 2 or ut_min % 10 == 3 or ut_min % 10 == 4:
-            text += "минуты "
+            text += " минуты"
         else:
-            text += " минут "
-            
-    text += str(ut_sec)
-    if ut_sec > 10 and ut_sec < 20:
-        text += " секунд"
-    elif ut_sec % 10 == 1:
-        text += " секунду"
-    elif ut_sec % 10 == 2 or ut_sec % 10 == 3 or ut_sec % 10 == 4:
-        text += " секунды"
-    else:
-        text += " секунд"
+            text += " минут"
+    
+    if ut_sec != 0:
+        text += " " + str(ut_sec)
+        if ut_sec > 10 and ut_sec < 20:
+            text += " секунд"
+        elif ut_sec % 10 == 1:
+            text += " секунду"
+        elif ut_sec % 10 == 2 or ut_sec % 10 == 3 or ut_sec % 10 == 4:
+            text += " секунды"
+        else:
+            text += " секунд"
     text += "!"
     print(text)
     font = pygame.font.Font(None, 50)  
     text = font.render(text, 1, (100, 255, 100))
   
-    screen.blit(text, [110, 100])
+    screen.blit(text, [50, 100])
 
     while True:
         
@@ -212,7 +214,7 @@ def endScreen():
         create_particles([random.randint(550, 650), random.randint(450, 550)])  
         particles_sprites.draw(screen)
         particles_sprites.update()
-        screen.blit(text, [110, 100])
+        screen.blit(text, [50, 100])
         pygame.display.flip()
         clock.tick(fps)
         
