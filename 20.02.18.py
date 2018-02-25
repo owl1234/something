@@ -40,6 +40,7 @@ player = None
 speed = 3
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
+particles_sprites = pygame.sprite.Group()
 indicator_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 koryaga_group = pygame.sprite.Group()
@@ -159,7 +160,7 @@ def startScreen():
 
 startScreen()
 all_time = time.time()
-
+screen_rect = (0, 0, width, height)
 def endScreen():
     user_time = int(time.time() - all_time)
     ut_min = user_time // 60
@@ -167,10 +168,14 @@ def endScreen():
     text = "¬ы поймали рыбу за "
     if ut_min > 0:
         text += str(ut_min) 
-        if ut_min == 1:
-            text += " минуту "
+        if ut_min > 10 and ut_min < 20:
+            text += " минут"
+        elif ut_min % 10 == 1:
+            text += " минуту"
+        elif ut_min % 10 == 2 or ut_min % 10 == 3 or ut_min % 10 == 4:
+            text += "минуты"
         else:
-            text += " минуты "
+            text += " минут"
             
     text += str(ut_sec)
     if ut_sec > 10 and ut_sec < 20:
@@ -181,17 +186,72 @@ def endScreen():
         text += " секунды"
     else:
         text += " секунд"
+    text += "!"
     print(text)
     font = pygame.font.Font(None, 50)  
     text = font.render(text, 1, (100, 255, 100))
   
-    screen.blit(text, [20, 200])
+    screen.blit(text, [110, 200])
 
     while True:
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+        screen.fill((0, 0, 0))
+        create_particles([random.randint(150, 250), random.randint(450, 550)])
+        create_particles([random.randint(550, 650), random.randint(450, 550)])  
+        particles_sprites.draw(screen)
+        particles_sprites.update()
+        screen.blit(text, [110, 200])
         pygame.display.flip()
+        clock.tick(fps)
+        
+        
+class Particle(pygame.sprite.Sprite):
+    # сгенерируем частицы разного размера
+    fire = []
+    image_star = load_image("star.png")
+    fire.append(pygame.transform.scale(image_star, (20, 20)))
+    fire.append(pygame.transform.scale(image_star, (10, 10)))
+
+    def __init__(self, x, y, dx, dy, size):
+        super().__init__(particles_sprites)
+
+        self.image = Particle.fire[random.randint(0, len(Particle.fire) - 1)]
+
+        self.rect = self.image.get_rect()
+
+        # у каждой частицы сво€ скорость
+        self.x_velocity = dx
+        self.y_velocity = dy
+
+        self.rect.x = x
+        self.rect.y = y
+
+        # гравитаци€
+        self.gravity = 0.1
+
+    def update(self):
+        # примен€ем гравитационный эффект
+        self.y_velocity += self.gravity
+        # перемещаем частицу
+        self.rect.x += self.x_velocity
+        self.rect.y += self.y_velocity
+        # убиваем, если частица ушла за экран
+        if not self.rect.colliderect(screen_rect):
+            self.kill()
+
+
+def create_particles(position):
+    # количество создаваемых частиц
+    particle_count = 20
+
+    # возможные скорости
+    numbers = list(range(-5, 5))
+
+    for i in range(0, particle_count):
+        p = Particle(position[0], position[1], random.choice(numbers), random.choice(numbers), random.randint(1, 5))
 
 def load_level(filename):
     filename = "data/" + filename
