@@ -4,6 +4,7 @@ import sys
 import random
 import time
 
+
 pygame.init()
 size = width, height = 800, 600
 screen = pygame.display.set_mode(size)
@@ -38,26 +39,27 @@ def startScreen():
     # здесь можно вывести красивую картинку
     # ...
 
-    # introText = ["ЗАСТАВКА", "",
-    #             "Правила игры",
-    #             "Если в правилах несколько строк,",
-    #             "приходится выводить их построчно"]
+    introText = ["Catch the fish!",
+                 "В этой игре вы можете почувствовать",
+                 "себя настоящим котом, который будет",
+                 "охотиться. А вы сможете поймать рыбку?"]
 
-    # screen.fill(pygame.Color('blue'))
-    # font = pygame.font.Font(None, 30)
-    # textCoord = 50
-    # for line in introText:
-    #    stringRendered = font.render(line, 1, pygame.Color('white'))
-    #    introRect = stringRendered.get_rect()
-    #    textCoord += 10
-    #    introRect.top = textCoord
-    #    introRect.x = 10
-    #    textCoord += introRect.height
-    #    screen.blit(stringRendered, introRect)
+    screen.fill(pygame.Color('blue'))
+    font = pygame.font.Font(None, 30)
+    textCoord = 50
+    
+    for line in introText:
+        stringRendered = font.render(line, 1, pygame.Color('white'))
+        introRect = stringRendered.get_rect()
+        textCoord += 10
+        introRect.top = textCoord
+        introRect.x = 10
+        textCoord += introRect.height
+        screen.blit(stringRendered, introRect)
 
-    backgr = load_image('fon.jpg')
-    backgr1 = pygame.transform.scale(backgr, (800, 600))
-    screen.blit(backgr1, [0, 0])
+    #backgr = load_image('fon.jpg')
+    #backgr1 = pygame.transform.scale(backgr, (800, 600))
+    #screen.blit(backgr1, [0, 0])
 
     while True:
         for event in pygame.event.get():
@@ -107,9 +109,8 @@ player_image_left = load_image('catt.png')
 volozh_image = load_image('fishh.png')
 tile_width = 49
 tile_height = 70
-koryaga_width = koryaga_height = 128
-grass_width = 128
-grass_height = 128
+koryaga_width = koryaga_height = 50
+grass_width = grass_height = 50
 volozh_width = 100
 volozh_height = 82
 indicator_width = indicator_height = 100
@@ -120,7 +121,7 @@ indicator_width = indicator_height = 100
 class koryaga(pygame.sprite.Sprite):
     def __init__(self, posx, posy):
         super().__init__(koryaga_group, all_sprites)
-        self.image = load_image('koryagaa.png')
+        self.image = load_image('koryaga.png')
         self.rect = self.image.get_rect().move(koryaga_width * posx + 20, koryaga_height * posy - 20)
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -249,7 +250,7 @@ class Player(pygame.sprite.Sprite):
 # основной персонаж
 player = None
 
-speed = 2
+speed = 3
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -313,32 +314,6 @@ player, levelx, levely = generate_level(load_level("file.txt"))
 camera = Camera((levelx, levely))
 indicator = Indicator()
 
-class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(all_sprites)
-        self.frames = []
-        self.cut_sheet(sheet, columns, rows)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.rect = self.rect.move(x, y)
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
-
-    def update(self):
-        self.cur_frame += 1
-
-        if self.cur_frame >= len(self.frames):
-            self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-
-cat = AnimatedSprite(load_image("kot.png"), 2, 4, 10, 10)
-# i need to combine player and cat
-
 t = 0
 ch = 1
 running = True
@@ -399,10 +374,10 @@ while running:
     ch += 1
     if ch % 500 == 0:
         for i in range(random.randint(1, 10)):
-            grass(random.randint(1, 7000), random.randint(1, 7000))
+            grass(random.randint(0, 80), random.randint(0, 80))
 
         for i in range(random.randint(1, 10)):
-            koryaga(random.randint(1, 7000), random.randint(1, 7000))
+            koryaga(random.randint(0, 80), random.randint(0, 80))
         ch = 0
 
 terminate()
