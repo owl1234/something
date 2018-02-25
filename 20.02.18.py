@@ -100,20 +100,21 @@ def startScreen():
     # здесь можно вывести красивую картинку
     # ...
 
-    introText = ["В этой игре вы можете почувствовать себя настоящим котом."]
+    introText = ["В этой игре вы можете почувствовать себя настоящим котом.",
+                 "Цель игры - найти рыбу на поле."]
 
-    screen.fill(pygame.Color('blue'))
+    screen.fill(pygame.Color('black'))
     font = pygame.font.Font(None, 50)
-    stringRendered = font.render("Поймай рыбку!", 1, pygame.Color('white'))
+    stringRendered = font.render("Поймай рыбку!", 1, (100, 255, 100))
     introRect = stringRendered.get_rect()
     introRect.top = 20
-    introRect.x = 200
+    introRect.x = 250
     screen.blit(stringRendered, introRect)    
     
     font = pygame.font.Font(None, 30)
     textCoord = 80
     for line in introText:
-        stringRendered = font.render(line, 1, pygame.Color('white'))
+        stringRendered = font.render(line, 1, (100, 255, 100))
         introRect = stringRendered.get_rect()
         textCoord += 10
         introRect.top = textCoord
@@ -121,24 +122,32 @@ def startScreen():
         textCoord += introRect.height
         screen.blit(stringRendered, introRect)
         
-    textCoord += 30
-    introText = ["Правила игры просты. На поле прячется рыба, которую кот должен", 
-                 "поймать. По пути он может встретить корягу, которая при касании",
-                 "с ним уменьшает его скорость, и траву, при касании с которой", 
-                 "скорость увеличивается. На ловлю рыбы отводится время 5 минут",
-                 "А вы сможете найти её быстрее?"]
+    textCoord += 20
+    introText = ["Правила игры просты. На поле прячется рыба, которую кот должен поймать.", 
+                 "По пути он может встретить корягу, которая при касании с ним уменьшает",
+                 "его скорость, и траву, при касании с которой скорость увеличивается.", 
+                 "В левом нижнем углу есть индикатор, показывающий удалённость", 
+                 "рыбы от персонажа. Чем он темнее, тем дальше кот от цели.",
+                 "Соответственно, чем светлее, тем ближе. Управление котом происходит",
+                 "при помощи стрелок на клавиатуре. А вы сможете поймать рыбку?"]
     for line in introText:
-        stringRendered = font.render(line, 1, pygame.Color('white'))
+        stringRendered = font.render(line, 1, (100, 255, 100))
         introRect = stringRendered.get_rect()
         textCoord += 10
         introRect.top = textCoord
         introRect.x = 20
         textCoord += introRect.height
         screen.blit(stringRendered, introRect)    
-
+    
+    ray = load_image('ray.png') # луч света
+    ray1 = pygame.transform.scale(ray, (186, 186))
+    screen.blit(ray1, [370, 400])
+    
     cat_begin = load_image('begin.png')
     cat1 = pygame.transform.scale(cat_begin, (149, 148))
-    screen.blit(cat1, [400, 400])
+    screen.blit(cat1, [400, 410])
+    
+    
     global ch
     while True:
         for event in pygame.event.get():
@@ -164,18 +173,18 @@ screen_rect = (0, 0, width, height)
 def endScreen():
     user_time = int(time.time() - all_time)
     ut_min = user_time // 60
-    ut_sec = user_time - ut_min
+    ut_sec = user_time - ut_min * 60
     text = "Вы поймали рыбу за "
     if ut_min > 0:
         text += str(ut_min) 
         if ut_min > 10 and ut_min < 20:
-            text += " минут"
+            text += " минут "
         elif ut_min % 10 == 1:
-            text += " минуту"
+            text += " минуту "
         elif ut_min % 10 == 2 or ut_min % 10 == 3 or ut_min % 10 == 4:
-            text += "минуты"
+            text += "минуты "
         else:
-            text += " минут"
+            text += " минут "
             
     text += str(ut_sec)
     if ut_sec > 10 and ut_sec < 20:
@@ -191,7 +200,7 @@ def endScreen():
     font = pygame.font.Font(None, 50)  
     text = font.render(text, 1, (100, 255, 100))
   
-    screen.blit(text, [110, 200])
+    screen.blit(text, [110, 100])
 
     while True:
         
@@ -203,7 +212,7 @@ def endScreen():
         create_particles([random.randint(550, 650), random.randint(450, 550)])  
         particles_sprites.draw(screen)
         particles_sprites.update()
-        screen.blit(text, [110, 200])
+        screen.blit(text, [110, 100])
         pygame.display.flip()
         clock.tick(fps)
         
