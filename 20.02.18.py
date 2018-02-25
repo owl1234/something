@@ -3,6 +3,7 @@ import pygame
 import sys
 import random
 import time
+import math
 
 
 pygame.init()
@@ -34,72 +35,18 @@ def terminate():
     pygame.quit()
     sys.exit()
 
-
-def startScreen():
-    # здесь можно вывести красивую картинку
-    # ...
-
-    introText = ["Catch the fish!",
-                 "¬ этой игре вы можете почувствовать",
-                 "себ€ насто€щим котом, который будет",
-                 "охотитьс€. ј вы сможете поймать рыбку?"]
-
-    screen.fill(pygame.Color('blue'))
-    font = pygame.font.Font(None, 30)
-    textCoord = 50
-    
-    for line in introText:
-        stringRendered = font.render(line, 1, pygame.Color('white'))
-        introRect = stringRendered.get_rect()
-        textCoord += 10
-        introRect.top = textCoord
-        introRect.x = 10
-        textCoord += introRect.height
-        screen.blit(stringRendered, introRect)
-
-    #backgr = load_image('fon.jpg')
-    #backgr1 = pygame.transform.scale(backgr, (800, 600))
-    #screen.blit(backgr1, [0, 0])
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
-        pygame.display.flip()
-        clock.tick(fps)
-
-
-startScreen()
-
-
-def endScreen():
-    print("hello")
-    endgr = load_image('creature.png')
-    endgr1 = pygame.transform.scale(endgr, (800, 600))
-    screen.blit(endgr1, [0, 0])
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-        pygame.display.flip()
-
-
-def load_level(filename):
-    filename = "data/" + filename
-    # читаем уровень, убира€ символы перевода строки
-    with open(filename, 'r') as mapFile:
-        level_map = [line.strip() for line in mapFile]
-
-    # и подсчитываем максимальную длину
-    maxWidth = max(map(len, level_map))
-
-    # дополн€ем каждую строку пустыми клетками ('.')
-    return list(map(lambda x: x.ljust(maxWidth, '.'), level_map))
-
-
+# основной персонаж
+player = None
+speed = 3
+# группы спрайтов
+all_sprites = pygame.sprite.Group()
+indicator_sprites = pygame.sprite.Group()
+tiles_group = pygame.sprite.Group()
+koryaga_group = pygame.sprite.Group()
+grass_group = pygame.sprite.Group()
+volozh_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+ch = 0
 tile_images = {'water': load_image('not.png')}
 koryaga_image = load_image('koryagaa.png')
 grass_image = load_image('grasss.png')
@@ -114,9 +61,6 @@ grass_width = grass_height = 50
 volozh_width = 100
 volozh_height = 82
 indicator_width = indicator_height = 100
-
-
-# level = load_level("file.txt")
 
 class koryaga(pygame.sprite.Sprite):
     def __init__(self, posx, posy):
@@ -149,6 +93,119 @@ class grass(pygame.sprite.Sprite):
             speed = 6
 
             t = time.time()
+            
+def startScreen():
+    
+    # здесь можно вывести красивую картинку
+    # ...
+
+    introText = ["¬ этой игре вы можете почувствовать себ€ насто€щим котом."]
+
+    screen.fill(pygame.Color('blue'))
+    font = pygame.font.Font(None, 50)
+    stringRendered = font.render("ѕоймай рыбку!", 1, pygame.Color('white'))
+    introRect = stringRendered.get_rect()
+    introRect.top = 20
+    introRect.x = 200
+    screen.blit(stringRendered, introRect)    
+    
+    font = pygame.font.Font(None, 30)
+    textCoord = 80
+    for line in introText:
+        stringRendered = font.render(line, 1, pygame.Color('white'))
+        introRect = stringRendered.get_rect()
+        textCoord += 10
+        introRect.top = textCoord
+        introRect.x = 20
+        textCoord += introRect.height
+        screen.blit(stringRendered, introRect)
+        
+    textCoord += 30
+    introText = ["ѕравила игры просты. Ќа поле пр€четс€ рыба, которую кот должен", 
+                 "поймать. ѕо пути он может встретить кор€гу, котора€ при касании",
+                 "с ним уменьшает его скорость, и траву, при касании с которой", 
+                 "скорость увеличиваетс€. Ќа ловлю рыбы отводитс€ врем€ 5 минут",
+                 "ј вы сможете найти еЄ быстрее?"]
+    for line in introText:
+        stringRendered = font.render(line, 1, pygame.Color('white'))
+        introRect = stringRendered.get_rect()
+        textCoord += 10
+        introRect.top = textCoord
+        introRect.x = 20
+        textCoord += introRect.height
+        screen.blit(stringRendered, introRect)    
+
+    cat_begin = load_image('begin.png')
+    cat1 = pygame.transform.scale(cat_begin, (149, 148))
+    screen.blit(cat1, [400, 400])
+    global ch
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        ch += 1
+        if ch % 500 == 0:
+            for i in range(random.randint(1, 10)):
+                grass(random.randint(0, 80), random.randint(0, 80))
+    
+            for i in range(random.randint(1, 10)):
+                koryaga(random.randint(0, 80), random.randint(0, 80))
+            ch = 0        
+        clock.tick(fps)
+
+
+startScreen()
+all_time = time.time()
+
+def endScreen():
+    user_time = int(time.time() - all_time)
+    ut_min = user_time // 60
+    ut_sec = user_time - ut_min
+    text = "¬ы поймали рыбу за "
+    if ut_min > 0:
+        text += str(ut_min) 
+        if ut_min == 1:
+            text += " минуту "
+        else:
+            text += " минуты "
+            
+    text += str(ut_sec)
+    if ut_sec > 10 and ut_sec < 20:
+        text += " секунд"
+    elif ut_sec % 10 == 1:
+        text += " секунду"
+    elif ut_sec % 10 == 2 or ut_sec % 10 == 3 or ut_sec % 10 == 4:
+        text += " секунды"
+    else:
+        text += " секунд"
+    print(text)
+    font = pygame.font.Font(None, 50)  
+    text = font.render(text, 1, (100, 255, 100))
+  
+    screen.blit(text, [20, 200])
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        pygame.display.flip()
+
+def load_level(filename):
+    filename = "data/" + filename
+    # читаем уровень, убира€ символы перевода строки
+    with open(filename, 'r') as mapFile:
+        level_map = [line.strip() for line in mapFile]
+
+    # и подсчитываем максимальную длину
+    maxWidth = max(map(len, level_map))
+
+    # дополн€ем каждую строку пустыми клетками ('.')
+    return list(map(lambda x: x.ljust(maxWidth, '.'), level_map))
+
+# level = load_level("file.txt")
 
 
 class Indicator(pygame.sprite.Sprite):
@@ -158,8 +215,6 @@ class Indicator(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 10
         self.rect.y = 490
-
-
 
     def update(self):
         print('Indicator:', self.rect.x, self.rect.y)
@@ -192,13 +247,13 @@ class Indicator(pygame.sprite.Sprite):
             self.image = load_image('7.png')
         elif min_len_to_fish < 1600:
             self.image = load_image('6.png')
-        elif min_len_to_fish < 1700:
-            self.image = load_image('5.png')
         elif min_len_to_fish < 1800:
-            self.image = load_image('4.png')
-        elif min_len_to_fish < 1900:
-            self.image = load_image('3.png')
+            self.image = load_image('5.png')
         elif min_len_to_fish < 2000:
+            self.image = load_image('4.png')
+        elif min_len_to_fish < 2100:
+            self.image = load_image('3.png')
+        elif min_len_to_fish < 2200:
             self.image = load_image('2.png')
         else:
             self.image = load_image('1.png')
@@ -247,35 +302,20 @@ class Player(pygame.sprite.Sprite):
             pass
 
 
-# основной персонаж
-player = None
-
-speed = 3
-
-# группы спрайтов
-all_sprites = pygame.sprite.Group()
-indicator_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-koryaga_group = pygame.sprite.Group()
-grass_group = pygame.sprite.Group()
-volozh_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-
-
 def generate_level(level):
     # global player
     for y in range(len(level)):
         for x in range(len(level[y])):
-            if level[y][x] == '.':
-                Tile('water', x, y)
-            elif level[y][x] == '#':
-                Tile('water', x, y)
-            elif level[y][x] == '@':
-                Tile('water', x, y)
+            Tile('water', x, y)
+            if level[y][x] == '@':
                 player = Player(x, y)
             elif level[y][x] == '!':
-                Tile('water', x, y)
                 Volozh(x, y)
+            elif level[y][x] == 'g':
+                grass(x, y)
+            elif level[y][x] == 'k':
+                koryaga(x, y)            
+                
 
     return player, x, y
 
@@ -315,7 +355,6 @@ camera = Camera((levelx, levely))
 indicator = Indicator()
 
 t = 0
-ch = 1
 running = True
 while running:
     for event in pygame.event.get():
@@ -373,10 +412,10 @@ while running:
 
     ch += 1
     if ch % 500 == 0:
-        for i in range(random.randint(1, 10)):
+        for i in range(random.randint(1, 15)):
             grass(random.randint(0, 80), random.randint(0, 80))
 
-        for i in range(random.randint(1, 10)):
+        for i in range(random.randint(1, 15)):
             koryaga(random.randint(0, 80), random.randint(0, 80))
         ch = 0
 
